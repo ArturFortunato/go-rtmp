@@ -72,7 +72,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
-		log.Println("======================NEW STREAM======================")
+		log.Println("AQUI")
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
@@ -126,7 +126,7 @@ func (h *serverControlConnectedHandler) onCommand(
 
 	case *message.NetStreamFCPublish:
 		l.Infof("FCPublish stream...: StreamName = %s", cmd.StreamName)
-
+		log.Println("PUBLISH::::", cmd.StreamName)
 		if err := h.sh.stream.userHandler().OnFCPublish(timestamp, cmd); err != nil {
 			return err
 		}
