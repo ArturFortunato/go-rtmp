@@ -173,6 +173,7 @@ func (dec *Decoder) decodeSetPeerBandwidth(msg *Message) error {
 }
 
 func (dec *Decoder) decodeAudioMessage(msg *Message) error {
+	log.Println("HERE============================================")
 	d, encTy := amf0.NewDecoder(dec.r), EncodingTypeAMF0
 
 	var name string
