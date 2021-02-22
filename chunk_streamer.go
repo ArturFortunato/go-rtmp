@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/yutopp/go-rtmp/message"
+	"github.com/ArturFortunato/go-rtmp/message"
 )
 
 const ctrlMsgChunkStreamID = 2
