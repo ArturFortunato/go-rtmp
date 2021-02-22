@@ -10,6 +10,7 @@ package rtmp
 import (
 	"context"
 	"io"
+	"log"
 	"math"
 	"sync"
 	"time"
@@ -224,6 +225,7 @@ func (cs *ChunkStreamer) readChunk() (*ChunkStreamReader, error) {
 		reader.messageLength = mh.messageLength
 		reader.messageTypeID = mh.messageTypeID
 		reader.messageStreamID = mh.messageStreamID
+		log.Println("CHUNK STREAMER:::", reader.messageStreamID)
 
 	case 1:
 		reader.timestampDelta = mh.timestampDelta
