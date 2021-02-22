@@ -172,8 +172,17 @@ func (dec *Decoder) decodeSetPeerBandwidth(msg *Message) error {
 }
 
 func (dec *Decoder) decodeAudioMessage(msg *Message) error {
+	d, encTy := amf0.NewDecoder(dec.r), EncodingTypeAMF0
+
+	var name string
+	if err := d.Decode(&name); err != nil {
+		return errors.Wrap(err, "Failed to decode name")
+	}
+
 	*msg = &AudioMessage{
 		Payload: dec.r, // Share an ownership of the reader
+		Name: name,
+		Encoding: encTy,
 	}
 
 	return nil
