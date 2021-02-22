@@ -11,6 +11,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/pkg/errors"
 
@@ -178,7 +179,7 @@ func (dec *Decoder) decodeAudioMessage(msg *Message) error {
 	if err := d.Decode(&name); err != nil {
 		return errors.Wrap(err, "Failed to decode name")
 	}
-
+	log.Println("============================================================GOT THE NAME: ", name)
 	*msg = &AudioMessage{
 		Payload: dec.r, // Share an ownership of the reader
 		Name: name,
