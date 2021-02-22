@@ -8,6 +8,7 @@
 package rtmp
 
 import (
+	"log"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -72,7 +73,7 @@ func newStreamHandler(s *Stream) *streamHandler {
 
 func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.Message) error {
 	l := h.Logger()
-
+	log.Println("HANDLE::: STREAMID:", h.stream.streamID)
 	switch msg := msg.(type) {
 	case *message.DataMessage:
 		return h.handleData(chunkStreamID, timestamp, msg)
