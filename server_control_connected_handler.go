@@ -8,6 +8,8 @@
 package rtmp
 
 import (
+	"log"
+
 	"github.com/pkg/errors"
 
 	"github.com/ArturFortunato/go-rtmp/internal"
@@ -70,6 +72,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
+		log.Println("======================NEW STREAM======================")
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
