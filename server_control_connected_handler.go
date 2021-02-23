@@ -65,6 +65,17 @@ func (h *serverControlConnectedHandler) onCommand(
 			return err
 		}
 
+		defer func() {
+			if err != nil {
+				result := h.newCreateStreamErrorResult()
+
+				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
+				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
+				}
+			}
+		}()
+
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
 
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
@@ -72,7 +83,7 @@ func (h *serverControlConnectedHandler) onCommand(
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
 			result := h.newCreateStreamErrorResult()
-			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, 0); err1 != nil {
+			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
 				return errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 			}
 
@@ -81,23 +92,12 @@ func (h *serverControlConnectedHandler) onCommand(
 		newStream.handler.ChangeState(streamStateServerInactive)
 
 		result := h.newCreateStreamSuccessResult(newStream.streamID)
-		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, newStream.streamID); err != nil {
+		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err != nil {
 			_ = h.sh.stream.streams().Delete(newStream.streamID) // TODO: error handling
 			return err
 		}
 
 		l.Infof("Stream created...: NewStreamID = %d", newStream.streamID)
-
-		defer func(streamID uint32) {
-			if err != nil {
-				result := h.newCreateStreamErrorResult()
-
-				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
-				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
-					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
-				}
-			}
-		}(newStream.streamID)
 
 		return nil
 

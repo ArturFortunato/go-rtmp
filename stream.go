@@ -196,13 +196,12 @@ func (s *Stream) ReplyCreateStream(
 	timestamp uint32,
 	transactionID int64,
 	body *message.NetConnectionCreateStreamResult,
-	streamID uint32,
 ) error {
 	commandName := "_result"
 	if body == nil {
 		commandName = "_error"
 		body = &message.NetConnectionCreateStreamResult{
-			StreamID: streamID,
+			StreamID: 0,
 		}
 	}
 
