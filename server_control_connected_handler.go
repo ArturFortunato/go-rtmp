@@ -8,6 +8,9 @@
 package rtmp
 
 import (
+	"log"
+	"strconv"
+
 	"github.com/pkg/errors"
 
 	"github.com/ArturFortunato/go-rtmp/internal"
@@ -15,6 +18,8 @@ import (
 )
 
 var _ stateHandler = (*serverControlConnectedHandler)(nil)
+
+var nextConnectionToCreateStreamName uint32 = 0
 
 // serverControlConnectedHandler Handle control messages from a client at server side.
 //   transitions:
@@ -54,6 +59,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
+		log.Println("AQUI TENHO:: ", nextConnectionToCreateStreamName)
 		defer func() {
 			if err != nil {
 				result := h.newCreateStreamErrorResult()
@@ -126,6 +132,16 @@ func (h *serverControlConnectedHandler) onCommand(
 
 		if err := h.sh.stream.userHandler().OnFCPublish(timestamp, cmd); err != nil {
 			return err
+		}
+
+		if nextConnectionToCreateStreamName == 0 {
+			if val, err := strconv.Atoi(cmd.StreamName); err == nil {
+				nextConnectionToCreateStreamName = uint32(val)
+			} else {
+				log.Println("======================BAD CAST======================")
+			}
+		} else {
+			log.Println("======================VERY DANGEROUS======================")
 		}
 
 		// TODO: send _result?
