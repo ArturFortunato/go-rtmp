@@ -76,6 +76,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
 
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
+		log.Println("NEW STREAM ID::::", newStream.streamID)
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
