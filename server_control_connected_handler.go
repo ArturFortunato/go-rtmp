@@ -59,7 +59,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
-		log.Println("AQUI TENHO:: ", nextConnectionToCreateStreamName)
+
 		defer func() {
 			if err != nil {
 				result := h.newCreateStreamErrorResult()
@@ -76,7 +76,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
-		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
+		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable(nextConnectionToCreateStreamName)
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
@@ -88,6 +88,7 @@ func (h *serverControlConnectedHandler) onCommand(
 			return nil // Keep the connection
 		}
 		newStream.handler.ChangeState(streamStateServerInactive)
+		log.Println("O streamID no NGINX É AGORA ", newStream.streamID)
 
 		result := h.newCreateStreamSuccessResult(newStream.streamID)
 		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err != nil {
