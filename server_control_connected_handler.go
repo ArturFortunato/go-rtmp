@@ -57,17 +57,6 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
-		log.Println("XXXXXXXXXXXXXXXXXXXXXXXX NetConnectionCreateStream streamID:: ", streamID)
-		defer func() {
-			if err != nil {
-				result := h.newCreateStreamErrorResult()
-
-				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
-				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
-					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
-				}
-			}
-		}()
 
 		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
 			return err
@@ -76,12 +65,11 @@ func (h *serverControlConnectedHandler) onCommand(
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
 
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
-		log.Println("NEW STREAM ID::::", newStream.streamID)
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
 			result := h.newCreateStreamErrorResult()
-			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, 0); err1 != nil {
 				return errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 			}
 
@@ -90,12 +78,24 @@ func (h *serverControlConnectedHandler) onCommand(
 		newStream.handler.ChangeState(streamStateServerInactive)
 
 		result := h.newCreateStreamSuccessResult(newStream.streamID)
-		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err != nil {
+		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, newStream.streamID); err != nil {
 			_ = h.sh.stream.streams().Delete(newStream.streamID) // TODO: error handling
 			return err
 		}
 
 		l.Infof("Stream created...: NewStreamID = %d", newStream.streamID)
+
+		defer func(streamID uint32) {
+			if err != nil {
+				log.Println("HERE IS THE TRUE ID:::", streamID)
+				result := h.newCreateStreamErrorResult()
+
+				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
+				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
+					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
+				}
+			}
+		}(newStream.streamID)
 
 		return nil
 
