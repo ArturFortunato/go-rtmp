@@ -43,7 +43,6 @@ func (h *serverDataPlayHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
-	_ uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }

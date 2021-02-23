@@ -45,7 +45,6 @@ func (h *clientControlNotConnectedHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
-	_ uint32,
 ) error {
 	l := h.sh.Logger()
 

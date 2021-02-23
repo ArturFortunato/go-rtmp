@@ -27,8 +27,6 @@ type Stream struct {
 	cmsg         ChunkMessage
 
 	conn *Conn
-
-	name string
 }
 
 func newStream(streamID uint32, conn *Conn) *Stream {
@@ -201,7 +199,7 @@ func (s *Stream) ReplyCreateStream(
 	if body == nil {
 		commandName = "_error"
 		body = &message.NetConnectionCreateStreamResult{
-			StreamID: 0,
+			StreamID: 0, // TODO: Change to error information object...
 		}
 	}
 
@@ -307,8 +305,8 @@ func (s *Stream) Write(chunkStreamID int, timestamp uint32, msg message.Message)
 	return s.streamer().Write(ctx, chunkStreamID, timestamp, &s.cmsg)
 }
 
-func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error {
-	return s.handler.Handle(chunkStreamID, timestamp, msg, streamID)
+func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message) error {
+	return s.handler.Handle(chunkStreamID, timestamp, msg)
 }
 
 func (s *Stream) streams() *streams {

@@ -8,9 +8,6 @@
 package rtmp
 
 import (
-	"log"
-	"strconv"
-
 	"github.com/pkg/errors"
 
 	"github.com/ArturFortunato/go-rtmp/internal"
@@ -18,8 +15,6 @@ import (
 )
 
 var _ stateHandler = (*serverControlConnectedHandler)(nil)
-
-var nextConnectionToCreateStreamName uint32 = 0
 
 // serverControlConnectedHandler Handle control messages from a client at server side.
 //   transitions:
@@ -52,7 +47,6 @@ func (h *serverControlConnectedHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
-	streamID uint32,
 ) (err error) {
 	l := h.sh.Logger()
 	tID := cmdMsg.TransactionID
@@ -60,11 +54,6 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
-		log.Println("Entrei no NetConnectionCreateStream")
-		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
-			return err
-		}
-
 		defer func() {
 			if err != nil {
 				result := h.newCreateStreamErrorResult()
@@ -76,8 +65,11 @@ func (h *serverControlConnectedHandler) onCommand(
 			}
 		}()
 
-		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
+		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
+			return err
+		}
 
+		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
@@ -98,7 +90,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		l.Infof("Stream created...: NewStreamID = %d", newStream.streamID)
-		log.Println("Sai no NetConnectionCreateStream")
+
 		return nil
 
 	case *message.NetStreamDeleteStream:
@@ -131,25 +123,12 @@ func (h *serverControlConnectedHandler) onCommand(
 
 	case *message.NetStreamFCPublish:
 		l.Infof("FCPublish stream...: StreamName = %s", cmd.StreamName)
-		log.Println("PUBLISH::::", cmd.StreamName, "   STREAMID::::", streamID)
 
 		if err := h.sh.stream.userHandler().OnFCPublish(timestamp, cmd); err != nil {
 			return err
 		}
 
-		log.Println("==============================================1")
-
-		if nextConnectionToCreateStreamName == 0 {
-			if val, err := strconv.Atoi(cmd.StreamName); err == nil {
-				nextConnectionToCreateStreamName = uint32(val)
-			} else {
-				log.Println("======================BAD CAST======================")
-			}
-		} else {
-			log.Println("======================VERY DANGEROUS======================")
-		}
-
-		log.Println("==============================================2")
+		// TODO: send _result?
 
 		return nil
 

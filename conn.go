@@ -189,7 +189,7 @@ func (c *Conn) handleMessage(chunkStreamID int, timestamp uint32, cmsg *ChunkMes
 		return errors.Errorf("Specified stream is not created yet: StreamID = %d", cmsg.StreamID)
 	}
 
-	if err := stream.handle(chunkStreamID, timestamp, cmsg.Message, cmsg.StreamID); err != nil {
+	if err := stream.handle(chunkStreamID, timestamp, cmsg.Message); err != nil {
 		switch err := err.(type) {
 		case *message.UnknownDataBodyDecodeError, *message.UnknownCommandBodyDecodeError:
 			// Ignore unknown messsage body
