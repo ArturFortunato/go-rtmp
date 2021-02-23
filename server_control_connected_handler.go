@@ -8,8 +8,8 @@
 package rtmp
 
 import (
-	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/pkg/errors"
 
@@ -18,6 +18,8 @@ import (
 )
 
 var _ stateHandler = (*serverControlConnectedHandler)(nil)
+
+var nextConnectionToCreateStreamName uint32 = 0
 
 // serverControlConnectedHandler Handle control messages from a client at server side.
 //   transitions:
@@ -61,15 +63,6 @@ func (h *serverControlConnectedHandler) onCommand(
 
 		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
 			return err
-		}
-		log.Println("TRYING")
-		m, ok := body.(map[string]interface{})
-		if !ok {
-			log.Println("FAILED")
-			return fmt.Errorf("want type map[string]interface{};  got %T", body)
-		}
-		for k, v := range m {
-			fmt.Println(k, "=>", v)
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
@@ -144,8 +137,14 @@ func (h *serverControlConnectedHandler) onCommand(
 			return err
 		}
 
-		if err1 := h.sh.stream.ReplyFCPublish(chunkStreamID, timestamp, tID, nil, cmd.StreamName); err1 != nil {
-			err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
+		if nextConnectionToCreateStreamName == 0 {
+			if val, err := strconv.Atoi(cmd.StreamName); err == nil {
+				nextConnectionToCreateStreamName = uint32(val)
+			} else {
+				log.Println("======================BAD CAST======================")
+			}
+		} else {
+			log.Println("======================VERY DANGEROUS======================")
 		}
 
 		return nil

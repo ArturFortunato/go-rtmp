@@ -84,7 +84,6 @@ func (t *NetConnectionConnectResult) FromArgs(args ...interface{}) error {
 	if err := mapstructure.Decode(information, &t.Information); err != nil {
 		return errors.Wrapf(err, "Failed to mapping NetConnectionConnectResultInformation")
 	}
-
 	return nil
 }
 
@@ -129,25 +128,6 @@ func (t *NetConnectionCreateStreamResult) ToArgs(ty EncodingType) ([]interface{}
 	return []interface{}{
 		nil, // no command object
 		t.StreamID,
-	}, nil
-}
-
-// TODO: fix for error messages
-type FCPublishResult struct {
-	Name string
-}
-
-func (t *FCPublishResult) FromArgs(args ...interface{}) error {
-	// args[0] is unknown, ignore
-	t.Name = args[1].(string)
-
-	return nil
-}
-
-func (t *FCPublishResult) ToArgs(ty EncodingType) ([]interface{}, error) {
-	return []interface{}{
-		nil, // no command object
-		t.Name,
 	}, nil
 }
 

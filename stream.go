@@ -214,29 +214,6 @@ func (s *Stream) ReplyCreateStream(
 	)
 }
 
-func (s *Stream) ReplyFCPublish(
-	chunkStreamID int,
-	timestamp uint32,
-	transactionID int64,
-	body *message.FCPublishResult,
-	name string,
-) error {
-	commandName := "_result"
-	if body == nil {
-		commandName = "_error"
-		body = &message.FCPublishResult{
-			Name: name,
-		}
-	}
-
-	return s.writeCommandMessage(
-		chunkStreamID, timestamp,
-		commandName,
-		transactionID,
-		body,
-	)
-}
-
 func (s *Stream) Publish(
 	body *message.NetStreamPublish,
 ) error {
