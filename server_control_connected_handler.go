@@ -57,6 +57,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
+		log.Println("XXXXXXXXXXXXXXXXXXXXXXXX NetConnectionCreateStream streamID:: ", streamID)
 		defer func() {
 			if err != nil {
 				result := h.newCreateStreamErrorResult()

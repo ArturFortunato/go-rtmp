@@ -52,7 +52,7 @@ func (ss *streams) Create(streamID uint32) (*Stream, error) {
 }
 
 func (ss *streams) CreateIfAvailable() (*Stream, error) {
-	for i := 0; i < ss.conn.config.ControlState.MaxMessageStreams; i++ {
+	for i := 1; i < ss.conn.config.ControlState.MaxMessageStreams; i++ {
 		s, err := ss.Create(uint32(i))
 		if err != nil {
 			continue
