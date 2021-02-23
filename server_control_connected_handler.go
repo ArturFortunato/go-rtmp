@@ -60,7 +60,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
-
+		log.Println("Entrei no NetConnectionCreateStream")
 		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		l.Infof("Stream created...: NewStreamID = %d", newStream.streamID)
-
+		log.Println("Sai no NetConnectionCreateStream")
 		return nil
 
 	case *message.NetStreamDeleteStream:
