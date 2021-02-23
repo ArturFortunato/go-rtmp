@@ -72,7 +72,7 @@ func newStreamHandler(s *Stream) *streamHandler {
 
 func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error {
 	l := h.Logger()
-	// log.Println("HANDLE::: STREAMID", h.stream.conn.streams.)
+
 	switch msg := msg.(type) {
 	case *message.DataMessage:
 		return h.handleData(chunkStreamID, timestamp, msg)

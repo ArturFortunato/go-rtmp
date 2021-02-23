@@ -97,16 +97,19 @@ func (t *NetConnectionConnectResult) ToArgs(ty EncodingType) ([]interface{}, err
 
 //
 type NetConnectionCreateStream struct {
+	Name string
 }
 
 func (t *NetConnectionCreateStream) FromArgs(args ...interface{}) error {
 	// args[0] // Will be nil...
+	t.Name = args[1].(string)
 	return nil
 }
 
 func (t *NetConnectionCreateStream) ToArgs(ty EncodingType) ([]interface{}, error) {
 	return []interface{}{
 		nil, // Just null
+		t.Name,
 	}, nil
 }
 
@@ -126,6 +129,25 @@ func (t *NetConnectionCreateStreamResult) ToArgs(ty EncodingType) ([]interface{}
 	return []interface{}{
 		nil, // no command object
 		t.StreamID,
+	}, nil
+}
+
+// TODO: fix for error messages
+type FCPublishResult struct {
+	Name string
+}
+
+func (t *FCPublishResult) FromArgs(args ...interface{}) error {
+	// args[0] is unknown, ignore
+	t.Name = args[1].(string)
+
+	return nil
+}
+
+func (t *FCPublishResult) ToArgs(ty EncodingType) ([]interface{}, error) {
+	return []interface{}{
+		nil, // no command object
+		t.Name,
 	}, nil
 }
 

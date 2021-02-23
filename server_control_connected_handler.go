@@ -8,6 +8,7 @@
 package rtmp
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/pkg/errors"
@@ -60,6 +61,14 @@ func (h *serverControlConnectedHandler) onCommand(
 
 		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
 			return err
+		}
+
+		m, ok := body.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("want type map[string]interface{};  got %T", body)
+		}
+		for k, v := range m {
+			fmt.Println(k, "=>", v)
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
@@ -134,7 +143,9 @@ func (h *serverControlConnectedHandler) onCommand(
 			return err
 		}
 
-		// TODO: send _result?
+		if err1 := h.sh.stream.ReplyFCPublish(chunkStreamID, timestamp, tID, nil, cmd.StreamName); err1 != nil {
+			err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
+		}
 
 		return nil
 

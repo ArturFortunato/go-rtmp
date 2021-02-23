@@ -8,7 +8,6 @@
 package rtmp
 
 import (
-	"log"
 	"net"
 
 	"github.com/pkg/errors"
@@ -27,7 +26,6 @@ func DialWithDialer(dialer *net.Dialer, protocol, addr string, config *ConnConfi
 	if err != nil {
 		return nil, err
 	}
-	log.Println("SO FAR BACK::", addr)
 	return newClientConnWithSetup(rwc, config)
 }
 
