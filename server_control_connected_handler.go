@@ -34,6 +34,7 @@ func (h *serverControlConnectedHandler) onMessage(
 	chunkStreamID int,
 	timestamp uint32,
 	msg message.Message,
+	streamID uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }
@@ -52,6 +53,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
+	streamID uint32,
 ) (err error) {
 	l := h.sh.Logger()
 	tID := cmdMsg.TransactionID
@@ -65,7 +67,7 @@ func (h *serverControlConnectedHandler) onCommand(
 				result := h.newCreateStreamErrorResult()
 
 				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
-				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
 					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 				}
 			}
@@ -81,17 +83,20 @@ func (h *serverControlConnectedHandler) onCommand(
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
 			result := h.newCreateStreamErrorResult()
-			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
 				return errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 			}
 
 			return nil // Keep the connection
 		}
+
+		nextConnectionToCreateStreamName = 0
+
 		newStream.handler.ChangeState(streamStateServerInactive)
 		log.Println("O streamID no NGINX É AGORA ", newStream.streamID)
 
 		result := h.newCreateStreamSuccessResult(newStream.streamID)
-		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err != nil {
+		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err != nil {
 			_ = h.sh.stream.streams().Delete(newStream.streamID) // TODO: error handling
 			return err
 		}

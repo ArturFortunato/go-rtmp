@@ -29,6 +29,7 @@ func (h *serverDataInactiveHandler) onMessage(
 	chunkStreamID int,
 	timestamp uint32,
 	msg message.Message,
+	streamID uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }
@@ -47,6 +48,7 @@ func (h *serverDataInactiveHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
+	_ uint32,
 ) error {
 	l := h.sh.Logger()
 

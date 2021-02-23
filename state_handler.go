@@ -12,7 +12,7 @@ import (
 )
 
 type stateHandler interface {
-	onMessage(chunkStreamID int, timestamp uint32, msg message.Message) error
+	onMessage(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error
 	onData(chunkStreamID int, timestamp uint32, dataMsg *message.DataMessage, body interface{}) error
-	onCommand(chunkStreamID int, timestamp uint32, cmdMsg *message.CommandMessage, body interface{}) error
+	onCommand(chunkStreamID int, timestamp uint32, cmdMsg *message.CommandMessage, body interface{}, streamID uint32) error
 }

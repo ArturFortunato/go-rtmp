@@ -194,12 +194,13 @@ func (s *Stream) ReplyCreateStream(
 	timestamp uint32,
 	transactionID int64,
 	body *message.NetConnectionCreateStreamResult,
+	streamID uint32,
 ) error {
 	commandName := "_result"
 	if body == nil {
 		commandName = "_error"
 		body = &message.NetConnectionCreateStreamResult{
-			StreamID: 0, // TODO: Change to error information object...
+			StreamID: streamID, // TODO: Change to error information object...
 		}
 	}
 
@@ -305,8 +306,8 @@ func (s *Stream) Write(chunkStreamID int, timestamp uint32, msg message.Message)
 	return s.streamer().Write(ctx, chunkStreamID, timestamp, &s.cmsg)
 }
 
-func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message) error {
-	return s.handler.Handle(chunkStreamID, timestamp, msg)
+func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error {
+	return s.handler.Handle(chunkStreamID, timestamp, msg, streamID)
 }
 
 func (s *Stream) streams() *streams {

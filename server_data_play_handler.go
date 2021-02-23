@@ -25,6 +25,7 @@ func (h *serverDataPlayHandler) onMessage(
 	chunkStreamID int,
 	timestamp uint32,
 	msg message.Message,
+	streamID uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }
@@ -43,6 +44,7 @@ func (h *serverDataPlayHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
+	_ uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }

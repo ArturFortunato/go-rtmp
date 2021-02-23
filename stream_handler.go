@@ -70,7 +70,7 @@ func newStreamHandler(s *Stream) *streamHandler {
 	}
 }
 
-func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.Message) error {
+func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error {
 	l := h.Logger()
 
 	switch msg := msg.(type) {
@@ -78,7 +78,7 @@ func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.
 		return h.handleData(chunkStreamID, timestamp, msg)
 
 	case *message.CommandMessage:
-		return h.handleCommand(chunkStreamID, timestamp, msg)
+		return h.handleCommand(chunkStreamID, timestamp, msg, streamID)
 
 	case *message.SetChunkSize:
 		l.Infof("Handle SetChunkSize: Msg = %#v", msg)
@@ -89,7 +89,7 @@ func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.
 		return h.stream.streamer().PeerState().SetAckWindowSize(msg.Size)
 
 	default:
-		err := h.handler.onMessage(chunkStreamID, timestamp, msg)
+		err := h.handler.onMessage(chunkStreamID, timestamp, msg, streamID)
 		if err == internal.ErrPassThroughMsg {
 			return h.stream.userHandler().OnUnknownMessage(timestamp, msg)
 		}
@@ -169,6 +169,7 @@ func (h *streamHandler) handleCommand(
 	chunkStreamID int,
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
+	streamID uint32,
 ) error {
 	switch cmdMsg.CommandName {
 	case "_result", "_error":
@@ -198,7 +199,7 @@ func (h *streamHandler) handleCommand(
 		return err
 	}
 
-	err := h.handler.onCommand(chunkStreamID, timestamp, cmdMsg, value)
+	err := h.handler.onCommand(chunkStreamID, timestamp, cmdMsg, value, streamID)
 	if err == internal.ErrPassThroughMsg {
 		return h.stream.userHandler().OnUnknownCommandMessage(timestamp, cmdMsg)
 	}
