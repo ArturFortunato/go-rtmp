@@ -49,6 +49,7 @@ func (h *serverControlConnectedHandler) onCommand(
 	timestamp uint32,
 	cmdMsg *message.CommandMessage,
 	body interface{},
+	streamID uint32,
 ) (err error) {
 	l := h.sh.Logger()
 	tID := cmdMsg.TransactionID
@@ -72,7 +73,7 @@ func (h *serverControlConnectedHandler) onCommand(
 		}
 
 		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
-		log.Println("AQUI")
+
 		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
@@ -126,7 +127,8 @@ func (h *serverControlConnectedHandler) onCommand(
 
 	case *message.NetStreamFCPublish:
 		l.Infof("FCPublish stream...: StreamName = %s", cmd.StreamName)
-		log.Println("PUBLISH::::", cmd.StreamName)
+		log.Println("PUBLISH::::", cmd.StreamName, "   STREAMID::::", streamID)
+
 		if err := h.sh.stream.userHandler().OnFCPublish(timestamp, cmd); err != nil {
 			return err
 		}

@@ -305,8 +305,8 @@ func (s *Stream) Write(chunkStreamID int, timestamp uint32, msg message.Message)
 	return s.streamer().Write(ctx, chunkStreamID, timestamp, &s.cmsg)
 }
 
-func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message) error {
-	return s.handler.Handle(chunkStreamID, timestamp, msg)
+func (s *Stream) handle(chunkStreamID int, timestamp uint32, msg message.Message, streamID uint32) error {
+	return s.handler.Handle(chunkStreamID, timestamp, msg, streamID)
 }
 
 func (s *Stream) streams() *streams {
