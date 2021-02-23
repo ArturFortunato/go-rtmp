@@ -62,9 +62,10 @@ func (h *serverControlConnectedHandler) onCommand(
 		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
 			return err
 		}
-
+		log.Println("TRYING")
 		m, ok := body.(map[string]interface{})
 		if !ok {
+			log.Println("FAILED")
 			return fmt.Errorf("want type map[string]interface{};  got %T", body)
 		}
 		for k, v := range m {
