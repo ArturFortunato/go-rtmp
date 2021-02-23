@@ -10,6 +10,7 @@ package rtmp
 import (
 	"bytes"
 	"context"
+	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -203,7 +204,7 @@ func (s *Stream) ReplyCreateStream(
 			StreamID: streamID,
 		}
 	}
-
+	log.Println("REPLY CREATE STREAM::: ", streamID)
 	return s.writeCommandMessage(
 		chunkStreamID, timestamp,
 		commandName,

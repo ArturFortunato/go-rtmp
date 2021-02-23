@@ -87,7 +87,6 @@ func (h *serverControlConnectedHandler) onCommand(
 
 		defer func(streamID uint32) {
 			if err != nil {
-				log.Println("HERE IS THE TRUE ID:::", streamID)
 				result := h.newCreateStreamErrorResult()
 
 				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
