@@ -137,6 +137,8 @@ func (h *serverControlConnectedHandler) onCommand(
 			return err
 		}
 
+		log.Println("==============================================1")
+
 		if nextConnectionToCreateStreamName == 0 {
 			if val, err := strconv.Atoi(cmd.StreamName); err == nil {
 				nextConnectionToCreateStreamName = uint32(val)
@@ -146,6 +148,8 @@ func (h *serverControlConnectedHandler) onCommand(
 		} else {
 			log.Println("======================VERY DANGEROUS======================")
 		}
+
+		log.Println("==============================================2")
 
 		return nil
 
