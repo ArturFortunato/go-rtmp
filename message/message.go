@@ -102,8 +102,6 @@ func (m *SetPeerBandwidth) TypeID() TypeID {
 // AudioMessage(8)
 type AudioMessage struct {
 	Payload io.Reader
-	Name string
-	Encoding EncodingType
 }
 
 func (m *AudioMessage) TypeID() TypeID {

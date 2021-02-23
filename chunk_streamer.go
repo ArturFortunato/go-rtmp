@@ -10,6 +10,7 @@ package rtmp
 import (
 	"context"
 	"io"
+	"log"
 	"math"
 	"sync"
 	"time"
@@ -100,13 +101,14 @@ func (cs *ChunkStreamer) Read(cmsg *ChunkMessage) (int, uint32, error) {
 		return 0, 0, err
 	}
 
+	log.Println("IS THIS IT??:: ", cmsg.StreamID)
 	cs.msgDec.Reset(reader)
 	if err := cs.msgDec.Decode(message.TypeID(reader.messageTypeID), &cmsg.Message); err != nil {
 		return 0, 0, err
 	}
 
 	cmsg.StreamID = reader.messageStreamID
-
+	log.Println("IS THIS IT 2??:: ", cmsg.StreamID)
 	return reader.basicHeader.chunkStreamID, uint32(reader.timestamp), nil
 }
 
