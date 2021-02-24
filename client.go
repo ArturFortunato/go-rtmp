@@ -26,6 +26,7 @@ func DialWithDialer(dialer *net.Dialer, protocol, addr string, config *ConnConfi
 	if err != nil {
 		return nil, err
 	}
+
 	return newClientConnWithSetup(rwc, config)
 }
 

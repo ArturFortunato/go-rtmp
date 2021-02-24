@@ -57,11 +57,11 @@ func (h *DefaultHandler) OnSetDataFrame(timestamp uint32, data *message.NetStrea
 	return nil
 }
 
-func (h *DefaultHandler) OnAudio(timestamp uint32, payload io.Reader) error {
+func (h *DefaultHandler) OnAudio(timestamp uint32, payload io.Reader, streamID uint32) error {
 	return nil
 }
 
-func (h *DefaultHandler) OnVideo(timestamp uint32, payload io.Reader) error {
+func (h *DefaultHandler) OnVideo(timestamp uint32, payload io.Reader, streamID uint32) error {
 	return nil
 }
 

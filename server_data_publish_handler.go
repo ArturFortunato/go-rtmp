@@ -25,13 +25,14 @@ func (h *serverDataPublishHandler) onMessage(
 	chunkStreamID int,
 	timestamp uint32,
 	msg message.Message,
+	streamID uint32,
 ) error {
 	switch msg := msg.(type) {
 	case *message.AudioMessage:
-		return h.sh.stream.userHandler().OnAudio(timestamp, msg.Payload)
+		return h.sh.stream.userHandler().OnAudio(timestamp, msg.Payload, streamID)
 
 	case *message.VideoMessage:
-		return h.sh.stream.userHandler().OnVideo(timestamp, msg.Payload)
+		return h.sh.stream.userHandler().OnVideo(timestamp, msg.Payload, streamID)
 
 	default:
 		return internal.ErrPassThroughMsg

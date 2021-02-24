@@ -172,7 +172,6 @@ func (dec *Decoder) decodeSetPeerBandwidth(msg *Message) error {
 }
 
 func (dec *Decoder) decodeAudioMessage(msg *Message) error {
-
 	*msg = &AudioMessage{
 		Payload: dec.r, // Share an ownership of the reader
 	}

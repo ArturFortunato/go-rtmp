@@ -84,6 +84,7 @@ func (t *NetConnectionConnectResult) FromArgs(args ...interface{}) error {
 	if err := mapstructure.Decode(information, &t.Information); err != nil {
 		return errors.Wrapf(err, "Failed to mapping NetConnectionConnectResultInformation")
 	}
+
 	return nil
 }
 
@@ -96,19 +97,16 @@ func (t *NetConnectionConnectResult) ToArgs(ty EncodingType) ([]interface{}, err
 
 //
 type NetConnectionCreateStream struct {
-	Name string
 }
 
 func (t *NetConnectionCreateStream) FromArgs(args ...interface{}) error {
 	// args[0] // Will be nil...
-	t.Name = args[1].(string)
 	return nil
 }
 
 func (t *NetConnectionCreateStream) ToArgs(ty EncodingType) ([]interface{}, error) {
 	return []interface{}{
 		nil, // Just null
-		t.Name,
 	}, nil
 }
 

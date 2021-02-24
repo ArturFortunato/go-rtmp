@@ -89,7 +89,7 @@ func (h *streamHandler) Handle(chunkStreamID int, timestamp uint32, msg message.
 		return h.stream.streamer().PeerState().SetAckWindowSize(msg.Size)
 
 	default:
-		err := h.handler.onMessage(chunkStreamID, timestamp, msg)
+		err := h.handler.onMessage(chunkStreamID, timestamp, msg, streamID)
 		if err == internal.ErrPassThroughMsg {
 			return h.stream.userHandler().OnUnknownMessage(timestamp, msg)
 		}

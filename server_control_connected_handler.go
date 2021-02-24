@@ -34,6 +34,7 @@ func (h *serverControlConnectedHandler) onMessage(
 	chunkStreamID int,
 	timestamp uint32,
 	msg message.Message,
+	streamID uint32,
 ) error {
 	return internal.ErrPassThroughMsg
 }
@@ -60,45 +61,48 @@ func (h *serverControlConnectedHandler) onCommand(
 	switch cmd := body.(type) {
 	case *message.NetConnectionCreateStream:
 		l.Infof("Stream creating...: %#v", cmd)
-		log.Println("Entrei no NetConnectionCreateStream")
-		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
-			return err
-		}
 
 		defer func() {
 			if err != nil {
 				result := h.newCreateStreamErrorResult()
 
 				l.Infof("CreateStream(Error): ResponseBody = %#v, Err = %+v", result, err)
-				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+				if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
 					err = errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 				}
 			}
 		}()
 
-		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
+		if err := h.sh.stream.userHandler().OnCreateStream(timestamp, cmd); err != nil {
+			return err
+		}
 
-		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable()
+		// Create a stream which handles messages for data(play, publish, video, audio, etc...)
+		newStream, err := h.sh.stream.streams().conn.streams.CreateIfAvailable(nextConnectionToCreateStreamName)
 		if err != nil {
 			l.Errorf("Failed to create stream: Err = %+v", err)
 
 			result := h.newCreateStreamErrorResult()
-			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err1 != nil {
+			if err1 := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err1 != nil {
 				return errors.Wrapf(err, "Failed to reply response: Err = %+v", err1)
 			}
 
 			return nil // Keep the connection
 		}
+
+		nextConnectionToCreateStreamName = 0
+
 		newStream.handler.ChangeState(streamStateServerInactive)
+		log.Println("O streamID no NGINX É AGORA ", newStream.streamID)
 
 		result := h.newCreateStreamSuccessResult(newStream.streamID)
-		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result); err != nil {
+		if err := h.sh.stream.ReplyCreateStream(chunkStreamID, timestamp, tID, result, streamID); err != nil {
 			_ = h.sh.stream.streams().Delete(newStream.streamID) // TODO: error handling
 			return err
 		}
 
 		l.Infof("Stream created...: NewStreamID = %d", newStream.streamID)
-		log.Println("Sai no NetConnectionCreateStream")
+
 		return nil
 
 	case *message.NetStreamDeleteStream:
@@ -131,13 +135,10 @@ func (h *serverControlConnectedHandler) onCommand(
 
 	case *message.NetStreamFCPublish:
 		l.Infof("FCPublish stream...: StreamName = %s", cmd.StreamName)
-		log.Println("PUBLISH::::", cmd.StreamName, "   STREAMID::::", streamID)
 
 		if err := h.sh.stream.userHandler().OnFCPublish(timestamp, cmd); err != nil {
 			return err
 		}
-
-		log.Println("==============================================1")
 
 		if nextConnectionToCreateStreamName == 0 {
 			if val, err := strconv.Atoi(cmd.StreamName); err == nil {
@@ -149,7 +150,7 @@ func (h *serverControlConnectedHandler) onCommand(
 			log.Println("======================VERY DANGEROUS======================")
 		}
 
-		log.Println("==============================================2")
+		// TODO: send _result?
 
 		return nil
 

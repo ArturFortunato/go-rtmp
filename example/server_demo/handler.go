@@ -89,6 +89,7 @@ func (h *Handler) OnSetDataFrame(timestamp uint32, data *rtmpmsg.NetStreamSetDat
 }
 
 func (h *Handler) OnAudio(timestamp uint32, payload io.Reader) error {
+
 	var audio flvtag.AudioData
 	if err := flvtag.DecodeAudioData(payload, &audio); err != nil {
 		return err
@@ -122,6 +123,7 @@ func (h *Handler) OnAudio(timestamp uint32, payload io.Reader) error {
 }
 
 func (h *Handler) OnVideo(timestamp uint32, payload io.Reader) error {
+
 	var video flvtag.VideoData
 	if err := flvtag.DecodeVideoData(payload, &video); err != nil {
 		return err
