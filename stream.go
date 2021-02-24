@@ -200,7 +200,7 @@ func (s *Stream) ReplyCreateStream(
 	if body == nil {
 		commandName = "_error"
 		body = &message.NetConnectionCreateStreamResult{
-			StreamID: streamID, // TODO: Change to error information object...
+			StreamID: streamID,
 		}
 	}
 
